@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('templates', function (Blueprint $table) {
             $table->id();
+            $table->string('cover_url');
             $table->string('name');
             $table->string('code')->unique();
-            $table->string('description');
+            $table->text('description');
             $table->timestamps();
             $table->softDeletes();
         });

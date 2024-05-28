@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_templates', function (Blueprint $table) {
+        Schema::create('user_template_sections', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('template_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('name');
-            $table->boolean('is_paid');
+            $table->foreignId('template_section_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_template_id')->constrained()->cascadeOnDelete();
+            $table->string('order');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_templates');
+        Schema::dropIfExists('user_template_sections');
     }
 };

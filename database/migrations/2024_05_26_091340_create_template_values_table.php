@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('template_values', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('template_id')->constrained()->cascadeOnDelete();
             $table->foreignId('template_section_id')->constrained()->cascadeOnDelete();
             $table->string('name');
+            $table->string('code');
             $table->string('type');
-            $table->string('default_value')->nullable();
+            $table->string('value')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
