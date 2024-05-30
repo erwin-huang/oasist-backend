@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('user_template_sections', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('template_section_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_template_id')->constrained()->cascadeOnDelete();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('template_section_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('user_template_id')->constrained()->cascadeOnDelete();
             $table->string('order');
             $table->timestamps();
             $table->softDeletes();

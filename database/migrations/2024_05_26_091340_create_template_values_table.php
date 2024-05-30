@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('template_values', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('template_section_id')->constrained()->cascadeOnDelete();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('template_section_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('code');
             $table->string('type');
