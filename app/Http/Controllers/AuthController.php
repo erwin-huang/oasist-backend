@@ -22,11 +22,12 @@ class AuthController extends Controller
             'password' => Hash::make($registerUserData['password']),
         ]);
 
-        return response()->json(['message' => 'User Created']);
+        return response()->json($user, 201);
     }
 
     public function login(Request $request)
     {
+        dd($request->header('User-Agent'));
         $loginUserData = $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|min:8'
@@ -34,18 +35,16 @@ class AuthController extends Controller
         $user = User::where('email', $loginUserData['email'])->first();
         if (!$user || !Hash::check($loginUserData['password'], $user->password)) {
             return response()->json([
-                'message' => 'Invalid Credentials'
+                'message' => 'Invalid credentials'
             ], 401);
         }
         $token = $user->createToken($user->name . '-AuthToken')->plainTextToken;
         return response()->json(['access_token' => $token]);
     }
 
-    public function logout(){
-        // auth()->user()->tokens()->delete();
-
-        // return response()->json([
-        //   "message"=>"logged out"
-        // ]);
+    public function logout()
+    {
+        request()->user()->currentAccessToken()->delete();
+        return response()->json(['message' => 'User logged out']);
     }
 }

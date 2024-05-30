@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 Route::controller(AuthController::class)->group(function () {
     Route::post('/auth/login', 'login');
     Route::post('/auth/register', 'register');
-    // Route::post('/logout', 'logout')->middleware('auth:sanctum');
+    Route::post('/auth/logout', 'logout')->middleware('auth:sanctum');
 });
 
 Route::middleware('auth:sanctum')->group( function () {
