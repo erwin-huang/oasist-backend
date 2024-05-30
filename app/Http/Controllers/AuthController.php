@@ -27,7 +27,6 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        dd($request->header('User-Agent'));
         $loginUserData = $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|min:8'
