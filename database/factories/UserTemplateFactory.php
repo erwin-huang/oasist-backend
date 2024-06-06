@@ -21,7 +21,7 @@ class UserTemplateFactory extends Factory
         return [
             'template_id' => Template::factory(),
             'user_id' => User::factory(),
-            'name' => fake()->words(rand(1,2), true),
+            'name' => fake()->words(rand(1, 2), true),
             'is_paid' => rand(0, 1),
             'published_at' => rand(0, 1) ? fake()->dateTimeThisYear('+1 years') : null,
         ];

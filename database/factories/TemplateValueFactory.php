@@ -17,14 +17,14 @@ class TemplateValueFactory extends Factory
      */
     public function definition(): array
     {
-        $name = fake()->words(rand(1,2), true);
+        $name = fake()->words(rand(1, 2), true);
 
         return [
             'template_section_id' => TemplateSection::factory(),
             'name' => $name,
             'code' => strtolower(str_replace(' ', '_', $name)),
             'type' => 'text',
-            'value' => fake()->words(rand(1,2), true),
+            'value' => fake()->words(rand(1, 2), true),
         ];
     }
 }
