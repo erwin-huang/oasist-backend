@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class TemplateSectionFactory extends Factory
 {
+    private static $order = 1;
+
     /**
      * Define the model's default state.
      *
@@ -18,13 +20,12 @@ class TemplateSectionFactory extends Factory
     public function definition(): array
     {
         $name = fake()->words(2, true);
-
         return [
             'template_id' => Template::factory(),
             'name' => $name,
             'code' => strtolower(str_replace(' ', '_', $name)),
             'description' => fake()->sentence(),
-            'order' => 1,
+            'order' => self::$order++,
         ];
     }
 }
