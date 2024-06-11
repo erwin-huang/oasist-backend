@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TemplateValue extends Model
 {
@@ -27,8 +27,8 @@ class TemplateValue extends Model
     /**
      * Get the template section associated with the template value.
      */
-    public function templateSection(): HasOne
+    public function templateSection(): BelongsTo
     {
-        return $this->hasOne(TemplateSection::class);
+        return $this->belongsTo(TemplateSection::class);
     }
 }

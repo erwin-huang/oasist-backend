@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class UserTemplateSection extends Model
 {
@@ -26,9 +26,9 @@ class UserTemplateSection extends Model
     /**
      * Get the user template associated with the user template section.
      */
-    public function userTemplate(): HasOne
+    public function userTemplate(): BelongsTo
     {
-        return $this->hasOne(UserTemplate::class);
+        return $this->belongsTo(UserTemplate::class);
     }
 
     /**
