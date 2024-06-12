@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\TemplateResource;
-use App\Models\Template;
+use App\Http\Resources\UserTemplateResource;
+use App\Models\UserTemplate;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Throwable;
 
-class TemplateController extends Controller
+class UserTemplateController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,7 +17,7 @@ class TemplateController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->per_page ?? 10;
-        return TemplateResource::collection(Template::paginate($perPage));
+        return UserTemplateResource::collection(UserTemplate::with("template")->paginate($perPage));
     }
 
     /**
@@ -33,10 +34,10 @@ class TemplateController extends Controller
     public function show(string $id)
     {
         try {
-            $template = Template::with(['templateSections', 'templateSections.templateValues'])->findOrFail($id);
-            return TemplateResource::make($template);
+            $userTemplate = UserTemplate::with(['template', 'userTemplateSections', 'userTemplateSections.userTemplateValues'])->findOrFail($id);
+            return TemplateResource::make($userTemplate);
         } catch (ModelNotFoundException $e) {
-            return response()->json(['message' => 'Template not found'], 404);
+            return response()->json(['message' => 'User template not found'], 404);
         } catch (Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
@@ -55,6 +56,14 @@ class TemplateController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $userTemplate = UserTemplate::findOrFail($id);
+            $userTemplate->delete();
+            return response()->json([], 204);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'User template not found'], 404);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }

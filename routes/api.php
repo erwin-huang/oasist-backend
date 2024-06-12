@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserTemplateController;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(AuthController::class)->group(function () {
@@ -15,6 +16,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::controller(UserController::class)->group(function () {
         Route::get('/users/me', 'me');
     });
+
+    Route::resource('user-templates', UserTemplateController::class);
 });
 
 Route::resource('templates', TemplateController::class)->only(['index', 'show']);
