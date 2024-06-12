@@ -4,7 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\TemplateResource;
 use App\Http\Resources\UserTemplateResource;
+use App\Models\TemplateSection;
+use App\Models\TemplateValue;
 use App\Models\UserTemplate;
+use App\Models\UserTemplateSection;
+use App\Models\UserTemplateValue;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Throwable;
@@ -17,7 +21,10 @@ class UserTemplateController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->per_page ?? 10;
-        return UserTemplateResource::collection(UserTemplate::with("template")->paginate($perPage));
+
+        $userTemplates = UserTemplate::with("template")->where("user_id", $request->user()->id)->paginate($perPage);
+
+        return UserTemplateResource::collection($userTemplates);
     }
 
     /**
@@ -25,7 +32,36 @@ class UserTemplateController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $createUserTemplateData = $request->validate([
+            'name' => 'required|string',
+            'template_id' => 'required|string|exists:templates,id',
+        ]);
+
+        $userTemplate = UserTemplate::create([
+            'template_id' => $createUserTemplateData['template_id'],
+            'user_id' => $request->user()->id,
+            'name' => $createUserTemplateData['name'],
+        ]);
+
+        $templateSections = TemplateSection::where('template_id', $userTemplate->template_id)->get();
+        foreach ($templateSections as $templateSection) {
+            $userTemplateSection = UserTemplateSection::create([
+                'template_section_id' => $templateSection->id,
+                'user_template_id' => $userTemplate->id,
+                'order' => $templateSection->order, // Assuming 'order' exists in TemplateSection
+            ]);
+
+            $templateValues = TemplateValue::where('template_section_id', $templateSection->id)->get();
+
+            foreach ($templateValues as $templateValue) {
+                UserTemplateValue::create([
+                    'template_value_id' => $templateValue->id,
+                    'user_template_section_id' => $userTemplateSection->id,
+                    'value' => $templateValue->value,
+                ]);
+            }
+        }
+        return response()->json(UserTemplateResource::make($userTemplate), 201);
     }
 
     /**
@@ -34,7 +70,13 @@ class UserTemplateController extends Controller
     public function show(string $id)
     {
         try {
-            $userTemplate = UserTemplate::with(['template', 'userTemplateSections', 'userTemplateSections.userTemplateValues'])->findOrFail($id);
+            $userTemplate = UserTemplate::with([
+                'template',
+                'userTemplateSections',
+                'userTemplateSections.templateSection',
+                'userTemplateSections.userTemplateValues',
+                'userTemplateSections.userTemplateValues.templateValue',
+            ])->findOrFail($id);
             return TemplateResource::make($userTemplate);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'User template not found'], 404);
