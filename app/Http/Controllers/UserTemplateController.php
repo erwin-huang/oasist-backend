@@ -20,11 +20,14 @@ class UserTemplateController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = $request->per_page ?? 10;
+        try {
+            $perPage = $request->per_page ?? 10;
+            $userTemplates = UserTemplate::with("template")->where("user_id", $request->user()->id)->paginate($perPage);
 
-        $userTemplates = UserTemplate::with("template")->where("user_id", $request->user()->id)->paginate($perPage);
-
-        return UserTemplateResource::collection($userTemplates);
+            return UserTemplateResource::collection($userTemplates);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -37,31 +40,35 @@ class UserTemplateController extends Controller
             'template_id' => 'required|string|exists:templates,id',
         ]);
 
-        $userTemplate = UserTemplate::create([
-            'template_id' => $createUserTemplateData['template_id'],
-            'user_id' => $request->user()->id,
-            'name' => $createUserTemplateData['name'],
-        ]);
-
-        $templateSections = TemplateSection::where('template_id', $userTemplate->template_id)->get();
-        foreach ($templateSections as $templateSection) {
-            $userTemplateSection = UserTemplateSection::create([
-                'template_section_id' => $templateSection->id,
-                'user_template_id' => $userTemplate->id,
-                'order' => $templateSection->order, // Assuming 'order' exists in TemplateSection
+        try {
+            $userTemplate = UserTemplate::create([
+                'template_id' => $createUserTemplateData['template_id'],
+                'user_id' => $request->user()->id,
+                'name' => $createUserTemplateData['name'],
             ]);
 
-            $templateValues = TemplateValue::where('template_section_id', $templateSection->id)->get();
-
-            foreach ($templateValues as $templateValue) {
-                UserTemplateValue::create([
-                    'template_value_id' => $templateValue->id,
-                    'user_template_section_id' => $userTemplateSection->id,
-                    'value' => $templateValue->value,
+            $templateSections = TemplateSection::where('template_id', $userTemplate->template_id)->get();
+            foreach ($templateSections as $templateSection) {
+                $userTemplateSection = UserTemplateSection::create([
+                    'template_section_id' => $templateSection->id,
+                    'user_template_id' => $userTemplate->id,
+                    'order' => $templateSection->order, // Assuming 'order' exists in TemplateSection
                 ]);
+
+                $templateValues = TemplateValue::where('template_section_id', $templateSection->id)->get();
+
+                foreach ($templateValues as $templateValue) {
+                    UserTemplateValue::create([
+                        'template_value_id' => $templateValue->id,
+                        'user_template_section_id' => $userTemplateSection->id,
+                        'value' => $templateValue->value,
+                    ]);
+                }
             }
+            return response()->json(UserTemplateResource::make($userTemplate), 201);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
         }
-        return response()->json(UserTemplateResource::make($userTemplate), 201);
     }
 
     /**

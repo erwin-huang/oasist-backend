@@ -15,8 +15,12 @@ class TemplateController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = $request->per_page ?? 10;
-        return TemplateResource::collection(Template::paginate($perPage));
+        try {
+            $perPage = $request->per_page ?? 10;
+            return TemplateResource::collection(Template::paginate($perPage));
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 
     /**

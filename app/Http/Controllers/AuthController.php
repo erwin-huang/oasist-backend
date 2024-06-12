@@ -6,6 +6,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Throwable;
 
 class AuthController extends Controller
 {
@@ -20,13 +21,17 @@ class AuthController extends Controller
             'password' => 'required|min:8'
         ]);
 
-        $user = User::create([
-            'name' => $registerUserData['name'],
-            'email' => $registerUserData['email'],
-            'password' => Hash::make($registerUserData['password']),
-        ]);
+        try {
+            $user = User::create([
+                'name' => $registerUserData['name'],
+                'email' => $registerUserData['email'],
+                'password' => Hash::make($registerUserData['password']),
+            ]);
 
-        return response()->json(UserResource::make($user), 201);
+            return response()->json(UserResource::make($user), 201);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -38,14 +43,20 @@ class AuthController extends Controller
             'email' => 'required|string|email',
             'password' => 'required|min:8'
         ]);
-        $user = User::where('email', $loginUserData['email'])->first();
-        if (!$user || !Hash::check($loginUserData['password'], $user->password)) {
-            return response()->json([
-                'message' => 'Invalid credentials'
-            ], 401);
+
+        try {
+            $user = User::where('email', $loginUserData['email'])->first();
+            if (!$user || !Hash::check($loginUserData['password'], $user->password)) {
+                return response()->json([
+                    'message' => 'Invalid credentials'
+                ], 401);
+            }
+
+            $token = $user->createToken($user->name . '-AuthToken')->plainTextToken;
+            return response()->json(['access_token' => $token]);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
         }
-        $token = $user->createToken($user->name . '-AuthToken')->plainTextToken;
-        return response()->json(['access_token' => $token]);
     }
 
     /**
@@ -53,7 +64,11 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        request()->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'User logged out']);
+        try {
+            request()->user()->currentAccessToken()->delete();
+            return response()->json(['message' => 'User logged out']);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }
