@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -25,7 +26,7 @@ class AuthController extends Controller
             'password' => Hash::make($registerUserData['password']),
         ]);
 
-        return response()->json($user, 201);
+        return response()->json(UserResource::make($user), 201);
     }
 
     /**
