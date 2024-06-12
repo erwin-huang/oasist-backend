@@ -24,6 +24,14 @@ class UserTemplateValue extends Model
     ];
 
     /**
+     * Get the template value associated with the user template value.
+     */
+    public function templateValue(): BelongsTo
+    {
+        return $this->belongsTo(TemplateValue::class);
+    }
+
+    /**
      * Get the user template section associated with the user template value.
      */
     public function userTemplateSection(): BelongsTo

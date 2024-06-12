@@ -25,6 +25,14 @@ class UserTemplateSection extends Model
     ];
 
     /**
+     * Get the template section associated with the user template section.
+     */
+    public function templateSection(): BelongsTo
+    {
+        return $this->belongsTo(TemplateSection::class);
+    }
+
+    /**
      * Get the user template associated with the user template section.
      */
     public function userTemplate(): BelongsTo
