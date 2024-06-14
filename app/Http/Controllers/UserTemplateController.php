@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\TemplateResource;
 use App\Http\Resources\UserTemplateResource;
 use App\Models\TemplateSection;
 use App\Models\TemplateValue;
@@ -84,7 +83,7 @@ class UserTemplateController extends Controller
                 'userTemplateSections.userTemplateValues',
                 'userTemplateSections.userTemplateValues.templateValue',
             ])->findOrFail($id);
-            return TemplateResource::make($userTemplate);
+            return UserTemplateResource::make($userTemplate);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'User template not found'], 404);
         } catch (Throwable $e) {

@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserTemplateController;
+use App\Http\Controllers\UserTemplateSectionController;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(AuthController::class)->group(function () {
@@ -18,6 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::resource('user-templates', UserTemplateController::class);
+    Route::resource('user-template-sections', UserTemplateSectionController::class)->only((['show', 'update']));
 });
 
 Route::resource('templates', TemplateController::class)->only(['index', 'show']);
