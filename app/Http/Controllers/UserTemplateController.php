@@ -97,7 +97,24 @@ class UserTemplateController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $updateUserTemplateData = $request->validate([
+            'name' => 'required|string',
+            'published_at' => 'date|nullable|date_format:Y-m-d H:i:s|after_or_equal:now - 20 minute',
+        ]);
+
+        try {
+            $userTemplate = UserTemplate::findOrFail($id);
+            $userTemplate->name = $updateUserTemplateData['name'];
+            if (array_key_exists('published_at', $updateUserTemplateData)) {
+                $userTemplate->published_at = $updateUserTemplateData['published_at'];
+            }
+            $userTemplate->save();
+            return response()->json(UserTemplateResource::make($userTemplate), 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'User template not found'], 404);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 
     /**
