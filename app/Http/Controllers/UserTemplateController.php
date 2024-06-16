@@ -73,7 +73,7 @@ class UserTemplateController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
         try {
             $userTemplate = UserTemplate::with([
@@ -83,6 +83,11 @@ class UserTemplateController extends Controller
                 'userTemplateSections.userTemplateValues',
                 'userTemplateSections.userTemplateValues.templateValue',
             ])->findOrFail($id);
+
+            if ($userTemplate->user_id !== $request->user()->id) {
+                return response()->json(['message' => 'User does not have access to this user template'], 403);
+            }
+
             return UserTemplateResource::make($userTemplate);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'User template not found'], 404);
@@ -96,21 +101,29 @@ class UserTemplateController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        try {
+            $userTemplate = UserTemplate::findOrFail($id);
+            if ($userTemplate->user_id !== $request->user()->id) {
+                return response()->json(['message' => 'User does not have access to this user template'], 403);
+            }
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'User template section not found'], 404);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+
         $updateUserTemplateData = $request->validate([
             'name' => 'required|string',
             'published_at' => 'date|nullable|date_format:Y-m-d H:i:s|after_or_equal:now - 20 minute',
         ]);
 
         try {
-            $userTemplate = UserTemplate::findOrFail($id);
             $userTemplate->name = $updateUserTemplateData['name'];
             if (array_key_exists('published_at', $updateUserTemplateData)) {
                 $userTemplate->published_at = $updateUserTemplateData['published_at'];
             }
             $userTemplate->save();
             return response()->json(UserTemplateResource::make($userTemplate), 200);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['message' => 'User template not found'], 404);
         } catch (Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
@@ -119,10 +132,14 @@ class UserTemplateController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
         try {
             $userTemplate = UserTemplate::findOrFail($id);
+            if ($userTemplate->user_id !== $request->user()->id) {
+                return response()->json(['message' => 'User does not have access to this user template'], 403);
+            }
+
             $userTemplate->delete();
             return response()->json([], 204);
         } catch (ModelNotFoundException $e) {
